@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="JellySeekBar">
+        <attr name="start_range" format="integer"/>
+        <attr name="sign_first_location" format="integer"/>
+        <attr name="end_rage" format="integer"/>
+        <attr name="circle_color" format="color"/>
+        <attr name="main_color" format="color"/>
+        <attr name="sign_txt_color" format="color"/>
+        <attr name="sign_Duration" format="integer"/>
+        <attr name="bubbles_Duration" format="integer"/>
+        <attr name="font" format="reference"/>
+
+    </declare-styleable>
+
+</resources>

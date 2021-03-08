@@ -3,6 +3,7 @@ package com.example.seekbar;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -15,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -25,29 +27,32 @@ public class JellySeekBar extends View {
     private final Paint paint = new Paint();
     private final Paint paint2 = new Paint();
     private final Paint txtPaint = new Paint();
-    private float chosenX;
-    private int startRange = 0, endRange = 100;
+    private float chosenX ;
+    private int startRange , endRange ;
     private float goUp, goDown;
     private boolean up = true;
-    private String circleColor = "#adcbe3", mainColor = "#4b86b4", signColor = "#011f4b";
+    private int circleColor =Color.parseColor( "#adcbe3");
+    private int mainColor = Color.parseColor("#4b86b4");
+    private int signColor = Color.parseColor("#011f4b");
     private final float margin = 50;
     private int borderGoUp;
     private int borderGoDown;
     private final ArrayList<Bubble> bubbles;
     private final Random random = new Random();
-    private int signFirstPos;
+    private int signFirstLocation;
     private int flag = 0;
     private SeekBarLocation seekBarLocation;
+    private long signDuration =400 , bubblesDuration = 600;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     public JellySeekBar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        init(context , attrs);
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeJoin(Paint.Join.ROUND);
-        paint.setColor(Color.parseColor(mainColor));
+        paint.setColor(mainColor);
 
-        //  paint = new Paint(Paint.ANTI_ALIAS_FLAG)
         paint2.setStyle(Paint.Style.STROKE);
         paint2.setStrokeWidth(10);
 
@@ -57,9 +62,35 @@ public class JellySeekBar extends View {
         txtPaint.setTypeface(getResources().getFont(R.font.dolce_vita));
         txtPaint.setTextAlign(Paint.Align.CENTER);
 
-        System.out.println(signFirstPos);
-
+        if (startRange == endRange)
+        endRange = 100;
     }
+
+
+
+    private void init(Context context, AttributeSet attrs) {
+        TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.JellySeekBar, 0, 0);
+        try {
+            startRange = ta.getInt(R.styleable.JellySeekBar_start_range, 0);
+            endRange = ta.getInt(R.styleable.JellySeekBar_end_rage, 0);
+            signFirstLocation = ta.getInt(R.styleable.JellySeekBar_sign_first_location, 0);
+
+            circleColor = ta.getColor(R.styleable.JellySeekBar_circle_color, 0xffadcbe3);
+            mainColor = ta.getColor(R.styleable.JellySeekBar_main_color, 0xff4b86b4);
+            signColor = ta.getColor(R.styleable.JellySeekBar_sign_txt_color, 0xff011f4b);
+
+            signDuration = ta.getInt(R.styleable.JellySeekBar_sign_Duration, 400);
+            bubblesDuration = ta.getInt(R.styleable.JellySeekBar_bubbles_Duration, 600);
+
+            txtPaint.setTypeface(ResourcesCompat.getFont(context , ta.getResourceId(R.styleable.JellySeekBar_font,R.font.dolce_vita )));
+
+        } finally {
+            ta.recycle();
+            invalidate();
+            requestLayout();
+        }
+    }
+
 
 
     @SuppressLint({"ResourceAsColor", "DrawAllocation"})
@@ -67,12 +98,12 @@ public class JellySeekBar extends View {
     protected void onDraw(Canvas canvas) {
 
         if (flag == 0) {
-            chosenX = (margin + 53) + ((float) (signFirstPos - startRange) / (endRange - startRange)) * (getWidth() - 2 * (margin + 53));
+            chosenX = (margin + 53) + ((float) (signFirstLocation - startRange) / (endRange - startRange)) * (getWidth() - 2 * (margin + 53));
             flag = 1;
         }
-        paint2.setColor(Color.parseColor(mainColor));
-        paint.setColor(Color.parseColor(mainColor));
-        txtPaint.setColor(Color.parseColor(signColor));
+        paint2.setColor(mainColor);
+        paint.setColor(mainColor);
+        txtPaint.setColor(signColor);
 
         canvas.drawRoundRect(new RectF(margin - 8, (getHeight() >> 1) - 20, getWidth() - margin + 8, (getHeight() >> 1) + 20), 100, 100, paint);
 
@@ -171,9 +202,8 @@ public class JellySeekBar extends View {
         Iterator<Bubble> it = bubbles.iterator();
         while (it.hasNext()) {
             Bubble bubble = it.next();
-            long bubbleStayDuration = 400;
-            bubble.setR(15 - (int) ((float) (System.currentTimeMillis() - bubble.getCreatedTime()) / bubbleStayDuration * 15));
-            bubble.setAlpha(255 - (int) ((float) (System.currentTimeMillis() - bubble.getCreatedTime()) / bubbleStayDuration * 255));
+            bubble.setR(15 - (int) ((float) (System.currentTimeMillis() - bubble.getCreatedTime()) / bubblesDuration * 15));
+            bubble.setAlpha(255 - (int) ((float) (System.currentTimeMillis() - bubble.getCreatedTime()) / bubblesDuration * 255));
             if (bubble.getAlpha() < 1) {
                 it.remove();
             }
@@ -192,7 +222,7 @@ public class JellySeekBar extends View {
 
         goDown = setInterpolator(goDown);
         drawCircleBorder(canvas, borderGoDown, s);
-        paint.setColor(Color.parseColor(circleColor));
+        paint.setColor(circleColor);
         canvas.drawCircle(chosenX, (getHeight() >> 1) - 15 - goDown, 30 + goDown / 3, paint);
 
         //draw txt
@@ -207,7 +237,7 @@ public class JellySeekBar extends View {
     private void makeCircleBigger(Canvas canvas, String s) {
         goUp = setInterpolator(goUp);
         drawCircleBorder(canvas, borderGoUp, s);
-        paint.setColor(Color.parseColor(circleColor));
+        paint.setColor(circleColor);
         canvas.drawCircle(chosenX, (getHeight() >> 1) - 15 - goUp, 30 + goUp / 3, paint);
 
         //draw txt
@@ -233,6 +263,9 @@ public class JellySeekBar extends View {
         if (x < startRange)
             x = startRange;
 
+        System.out.println(x+"..............");
+
+        if (seekBarLocation != null)
         seekBarLocation.setX(x);
 
         return String.valueOf(x);
@@ -280,9 +313,9 @@ public class JellySeekBar extends View {
 
 
     public void setColor(String circleColor, String mainColor, String fontColor) {
-        this.mainColor = mainColor;
-        this.circleColor = circleColor;
-        this.signColor = fontColor;
+        this.mainColor = Color.parseColor(mainColor);
+        this.circleColor = Color.parseColor(circleColor);
+        this.signColor = Color.parseColor(fontColor);
         invalidate();
     }
 
@@ -291,7 +324,7 @@ public class JellySeekBar extends View {
 
         //for circle
         ValueAnimator animator = ValueAnimator.ofFloat(0, 60);
-        animator.setDuration(500);
+        animator.setDuration(signDuration);
 
         animator.addUpdateListener(valueAnimator -> {
             goUp = ((Float) valueAnimator.getAnimatedValue()).intValue();
@@ -301,7 +334,7 @@ public class JellySeekBar extends View {
         animator.start();
 
         ValueAnimator animator2 = ValueAnimator.ofFloat(0, 60);
-        animator2.setDuration(500);
+        animator2.setDuration(signDuration);
 
         animator2.addUpdateListener(valueAnimator -> {
             borderGoUp = ((Float) valueAnimator.getAnimatedValue()).intValue();
@@ -312,13 +345,8 @@ public class JellySeekBar extends View {
     }
 
 
-    public void setSignFirstPos(int x) {
-        signFirstPos = x;
-    }
-
-    public int getPos() {
-        return (int) (startRange + (endRange - startRange) * (chosenX - (margin + 53)) /
-                (getWidth() - 2 * (margin + 53)));
+    public void setSignFirstLocation(int x) {
+        signFirstLocation = x;
     }
 
     public void setFontForNum(Typeface typeface) {
@@ -328,5 +356,13 @@ public class JellySeekBar extends View {
 
     public void getSeekBarLocation(SeekBarLocation seekBarLocation) {
         this.seekBarLocation = seekBarLocation;
+    }
+
+    public void setSignDuration(long signDuration) {
+        this.signDuration = signDuration;
+    }
+
+    public void setBubblesDuration(long bubblesDuration) {
+        this.bubblesDuration = bubblesDuration;
     }
 }
