@@ -14,6 +14,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.res.ResourcesCompat;
@@ -22,16 +23,22 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
+/**
+ * this class represents a view for seek bar
+ * there are some methods to set animation times , colors , font , range , ...
+ * author = zahra fatehi
+ */
+
 public class JellySeekBar extends View {
 
     private final Paint paint = new Paint();
     private final Paint paint2 = new Paint();
     private final Paint txtPaint = new Paint();
-    private float chosenX ;
-    private int startRange , endRange ;
+    private float chosenX;
+    private int startRange, endRange;
     private float goUp, goDown;
     private boolean up = true;
-    private int circleColor =Color.parseColor( "#adcbe3");
+    private int circleColor = Color.parseColor("#adcbe3");
     private int mainColor = Color.parseColor("#4b86b4");
     private int signColor = Color.parseColor("#011f4b");
     private final float margin = 50;
@@ -42,12 +49,12 @@ public class JellySeekBar extends View {
     private int signFirstLocation;
     private int flag = 0;
     private SeekBarLocation seekBarLocation;
-    private long signDuration =400 , bubblesDuration = 600;
+    private long signDuration = 400, bubblesDuration = 600;
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     public JellySeekBar(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(context , attrs);
+        init(context, attrs);
         paint.setAntiAlias(true);
         paint.setStyle(Paint.Style.FILL);
         paint.setStrokeJoin(Paint.Join.ROUND);
@@ -59,13 +66,13 @@ public class JellySeekBar extends View {
         bubbles = new ArrayList<>();
 
         txtPaint.setTextSize(40);
-        txtPaint.setTypeface(getResources().getFont(R.font.dolce_vita));
+
+        txtPaint.setTypeface(ResourcesCompat.getFont(context, R.font.dolce_vita));
         txtPaint.setTextAlign(Paint.Align.CENTER);
 
         if (startRange == endRange)
-        endRange = 100;
+            endRange = 100;
     }
-
 
 
     private void init(Context context, AttributeSet attrs) {
@@ -82,7 +89,7 @@ public class JellySeekBar extends View {
             signDuration = ta.getInt(R.styleable.JellySeekBar_sign_Duration, 400);
             bubblesDuration = ta.getInt(R.styleable.JellySeekBar_bubbles_Duration, 600);
 
-            txtPaint.setTypeface(ResourcesCompat.getFont(context , ta.getResourceId(R.styleable.JellySeekBar_font,R.font.dolce_vita )));
+            txtPaint.setTypeface(ResourcesCompat.getFont(context, ta.getResourceId(R.styleable.JellySeekBar_font, R.font.dolce_vita)));
 
         } finally {
             ta.recycle();
@@ -92,12 +99,11 @@ public class JellySeekBar extends View {
     }
 
 
-
     @SuppressLint({"ResourceAsColor", "DrawAllocation"})
     @Override
     protected void onDraw(Canvas canvas) {
 
-        if (flag == 0) {
+        if (flag == 0) {// just run for first time
             chosenX = (margin + 53) + ((float) (signFirstLocation - startRange) / (endRange - startRange)) * (getWidth() - 2 * (margin + 53));
             flag = 1;
         }
@@ -136,6 +142,11 @@ public class JellySeekBar extends View {
         }
     }
 
+    /**
+     * @param canvas to draw border
+     * @param borderChange
+     * @param s shows the location which can be right or left or non
+     */
     private void drawCircleBorder(Canvas canvas, float borderChange, String s) {
 
         final Path path = new Path();
@@ -144,7 +155,7 @@ public class JellySeekBar extends View {
         float startY = (float) (getHeight() / 2);
 
         borderChange = setInterpolator(borderChange);
-        if (s.equals("left")) {
+        if (s.equals("left")) {// draw left part
             path.moveTo(margin, startY - (chosenX - margin - 50) * 20 / 100);
             path.cubicTo(startX + 50, startY - (chosenX - margin - 50) * 20 / 100,
                     startX + 20, (float) (startY - (chosenX - margin - 50) * 20 / 100 + 20 - borderChange * 1.5 - 60),
@@ -166,7 +177,7 @@ public class JellySeekBar extends View {
             canvas.drawPath(path, paint);
         }
 
-        if (s.equals("right")) {
+        if (s.equals("right")) { // draw right part
             path.moveTo(startX + 100, (float) (startY - borderChange * 1.5 - 60));
             path.cubicTo(startX + 180, (float) ((startY - (getWidth() - chosenX - 100) * 20 / 100) + 20 - borderChange * 1.5 - 60),
                     startX + 150, startY - (getWidth() - chosenX - 100) * 20 / 100,
@@ -191,6 +202,10 @@ public class JellySeekBar extends View {
     }
 
 
+    /**
+     * draw bubbles
+     * @param canvas used to draw circles
+     */
     private void drawBubble(Canvas canvas) {
         for (Bubble bubble : bubbles) {
             paint2.setAlpha(bubble.getAlpha());
@@ -198,6 +213,9 @@ public class JellySeekBar extends View {
         }
     }
 
+    /**
+     * update alpha and r of bubbles
+     */
     private void updateBubbles() {
         Iterator<Bubble> it = bubbles.iterator();
         while (it.hasNext()) {
@@ -212,12 +230,21 @@ public class JellySeekBar extends View {
 
     }
 
+    /**
+     * add bubbles
+     * @param r radius of bubbles
+     */
     private void addBubbles(int x, int y, int r) {
         Bubble bubble = new Bubble(x, y, r, 255, System.currentTimeMillis());
         bubbles.add(bubble);
     }
 
 
+    /**
+     * make circle smaller
+     * @param canvas
+     * @param s
+     */
     private void makeCircleSmaller(Canvas canvas, String s) {
 
         goDown = setInterpolator(goDown);
@@ -234,6 +261,11 @@ public class JellySeekBar extends View {
 
     }
 
+    /**
+     * make circle bigger and rise up when user touch
+     * @param canvas
+     * @param s is state of seek bar
+     */
     private void makeCircleBigger(Canvas canvas, String s) {
         goUp = setInterpolator(goUp);
         drawCircleBorder(canvas, borderGoUp, s);
@@ -246,6 +278,9 @@ public class JellySeekBar extends View {
     }
 
 
+    /**
+     * use overshoot function for animate seek bar
+     * */
     private float setInterpolator(float x) {
         x = (float) ((float) ((float) Math.pow(2, (-10 * x / 100)) * Math.sin(2 * 3.1415926535
                 * (x / 100 - (0.3 / 4)))) + 0.5) * 100;
@@ -253,6 +288,9 @@ public class JellySeekBar extends View {
     }
 
 
+    /**
+     * @return the x in chosen range
+     */
     @SuppressLint("DefaultLocale")
     private String setText(Float chosenX) {
 
@@ -263,10 +301,8 @@ public class JellySeekBar extends View {
         if (x < startRange)
             x = startRange;
 
-        System.out.println(x+"..............");
-
         if (seekBarLocation != null)
-        seekBarLocation.setX(x);
+            seekBarLocation.setX(x);
 
         return String.valueOf(x);
 
@@ -306,12 +342,18 @@ public class JellySeekBar extends View {
         }
     }
 
+    /**
+     * set the range of the seek bar
+     */
     public void setRange(int startRange, int endRange) {
         this.startRange = startRange;
         this.endRange = endRange;
     }
 
 
+    /**
+     * set colors for seek bar
+     */
     public void setColor(String circleColor, String mainColor, String fontColor) {
         this.mainColor = Color.parseColor(mainColor);
         this.circleColor = Color.parseColor(circleColor);
@@ -320,6 +362,9 @@ public class JellySeekBar extends View {
     }
 
 
+    /**
+     * set animations for seek bar
+     */
     public void startAnimation() {
 
         //for circle
@@ -345,23 +390,40 @@ public class JellySeekBar extends View {
     }
 
 
+    /**
+     * @param x is sign first location in seek bar
+     */
     public void setSignFirstLocation(int x) {
         signFirstLocation = x;
     }
 
+    /**
+     *
+     * @param typeface is the font of number
+     */
     public void setFontForNum(Typeface typeface) {
         txtPaint.setTypeface(typeface);
         invalidate();
     }
 
+    /**
+     * @param seekBarLocation first location of seek bar
+     */
     public void getSeekBarLocation(SeekBarLocation seekBarLocation) {
         this.seekBarLocation = seekBarLocation;
     }
 
+    /**
+     * @param signDuration duration that sign arise
+     */
     public void setSignDuration(long signDuration) {
         this.signDuration = signDuration;
     }
 
+    /**
+     *
+     * @param bubblesDuration duration that bubbles remain
+     */
     public void setBubblesDuration(long bubblesDuration) {
         this.bubblesDuration = bubblesDuration;
     }
