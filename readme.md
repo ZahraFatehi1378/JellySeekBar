@@ -7,19 +7,39 @@
 
 Gradle:
 
-implementation ''
-SBT:
+Step 1. Add the JitPack repository to your build file
+Add it in your root build.gradle at the end of repositories:
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
 
-libraryDependencies += "com.ramotion.fluidslider" % "fluid-slider" % "0.3.1"
+Step 2. Add the dependency
+
+dependencies {
+        implementation 'com.github.ZahraFatehi1378:JellySeekBar:1.0.0'
+}
+
 Maven:
 
-<dependency>
-  <groupId></groupId>
-  <artifactId></artifactId>
-  <version></version>
-  <type></type>
-</dependency>
+Step 1. Add the JitPack repository to your build file 
 
+<repositories>
+	<repository>
+	    <id>jitpack.io</id>
+	    <url>https://jitpack.io</url>
+	</repository>
+</repositories>
+
+Step 2. Add the dependency
+
+<dependency>
+    <groupId>com.github.ZahraFatehi1378</groupId>
+    <artifactId>JellySeekBar</artifactId>
+    <version>1.0.0</version>
+</dependency>
 
 ```
 
