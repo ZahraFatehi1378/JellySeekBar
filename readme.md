@@ -2,13 +2,10 @@
 
 
 ## Installation
-```
-​Just download the package from here and add it to your project classpath, or just use the maven repo:
+
 
 Gradle:
-
-Step 1. Add the JitPack repository to your build file
-Add it in your root build.gradle at the end of repositories:
+```
 allprojects {
 	repositories {
 		...
@@ -16,16 +13,13 @@ allprojects {
 	}
 }
 
-Step 2. Add the dependency
 
 dependencies {
         implementation 'com.github.ZahraFatehi1378:JellySeekBar:1.0.0'
 }
-
+```
 Maven:
-
-Step 1. Add the JitPack repository to your build file 
-
+```
 <repositories>
 	<repository>
 	    <id>jitpack.io</id>
@@ -33,7 +27,6 @@ Step 1. Add the JitPack repository to your build file
 	</repository>
 </repositories>
 
-Step 2. Add the dependency
 
 <dependency>
     <groupId>com.github.ZahraFatehi1378</groupId>
